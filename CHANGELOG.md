@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Loss History Tracking** (`LossHistory`)
+  - Per-step loss recording with phase and timestamp information
+  - Statistical analysis: mean, variance, std dev, min, max, median
+  - Rolling statistics over configurable windows
+  - Convergence detection with configurable thresholds
+  - Anomaly detection (spikes and divergence)
+  - Per-phase statistics for comparing Warmup, Full, Predict, and Correct phases
+  - JSON export for persistence and external visualization
+  - Time tracking for performance analysis
+  - 16 unit tests + 9 integration tests
+  - Comprehensive documentation and examples
+- `LossHistoryConfig` for configurable tracking behavior
+  - `max_history`: Maximum measurements to retain (default: 1000)
+  - `rolling_window`: Window for rolling statistics (default: 20)
+  - `spike_threshold`: Sensitivity for spike detection (default: 3.0σ)
+  - `divergence_threshold`: Threshold for divergence detection (default: 1.2×)
+- `DeterministicPhaseConfig` extensions:
+  - `track_loss_history`: Enable/disable tracking (default: true)
+  - `loss_history_config`: Configure loss tracking behavior
+  - `with_loss_tracking()`: Builder method
+  - `with_loss_history_config()`: Builder method
+- `DeterministicPhaseTrainer` methods:
+  - `loss_history()`: Access loss history tracker
+  - `loss_history_mut()`: Mutable access to tracker
+  - Automatic loss recording in `end_step()`
+  - Loss history reset in `reset()`
+- Example program `examples/loss_tracking_demo.rs`
+- Documentation `LOSS_TRACKING_GUIDE.md` with comprehensive usage examples
+
+### Changed
+- Loss tracking is now enabled by default in `DeterministicPhaseConfig`
+- Integration tests now cover loss history functionality
+
 ## [0.1.1] - 2026-01-24
 
 ### Added

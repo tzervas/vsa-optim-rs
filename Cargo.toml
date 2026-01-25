@@ -23,6 +23,7 @@ candle-core = { workspace = true }
 # Core utilities
 thiserror = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 
 # Random number generation
 rand = "0.8"

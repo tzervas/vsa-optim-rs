@@ -31,10 +31,14 @@
 //! - Residuals ensure convergence to actual gradients
 
 mod deterministic_trainer;
+mod loss_history;
 mod trainer;
 
 pub use deterministic_trainer::{
     DeterministicPhase, DeterministicPhaseConfig, DeterministicPhaseTrainer,
     DeterministicStepInfo, DeterministicTrainerStats,
+};
+pub use loss_history::{
+    LossAnomaly, LossHistory, LossHistoryConfig, LossMeasurement, LossStatistics,
 };
 pub use trainer::{PhaseTrainer, StepInfo, TrainerStats, TrainingPhase};

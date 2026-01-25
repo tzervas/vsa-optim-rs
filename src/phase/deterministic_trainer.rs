@@ -30,6 +30,8 @@ use candle_core::{Device, Tensor};
 use crate::error::{OptimError, Result};
 use crate::prediction::{DeterministicPredictionConfig, DeterministicPredictor};
 
+use super::loss_history::{LossHistory, LossHistoryConfig};
+
 fn warn_cpu_fallback(device: &Device) {
     static WARN_ONCE: std::sync::Once = std::sync::Once::new();
     if matches!(device, Device::Cpu) {
@@ -67,6 +69,12 @@ pub struct DeterministicPhaseConfig {
 
     /// Maximum gradient norm for clipping.
     pub max_grad_norm: f32,
+
+    /// Whether to enable loss history tracking.
+    pub track_loss_history: bool,
+
+    /// Configuration for loss history (if enabled).
+    pub loss_history_config: LossHistoryConfig,
 }
 
 impl Default for DeterministicPhaseConfig {
@@ -80,6 +88,8 @@ impl Default for DeterministicPhaseConfig {
             adaptive_phases: true,
             loss_threshold: 0.1,
             max_grad_norm: 1.0,
+            track_loss_history: true,
+            loss_history_config: LossHistoryConfig::default(),
         }
     }
 }
@@ -110,6 +120,20 @@ impl DeterministicPhaseConfig {
     #[must_use]
     pub const fn with_correct_every(mut self, every: usize) -> Self {
         self.correct_every = every;
+        self
+    }
+
+    /// Builder: Enable or disable loss history tracking.
+    #[must_use]
+    pub const fn with_loss_tracking(mut self, enabled: bool) -> Self {
+        self.track_loss_history = enabled;
+        self
+    }
+
+    /// Builder: Set loss history configuration.
+    #[must_use]
+    pub fn with_loss_history_config(mut self, config: LossHistoryConfig) -> Self {
+        self.loss_history_config = config;
         self
     }
 }
@@ -237,6 +261,9 @@ pub struct DeterministicPhaseTrainer {
 
     /// Effective predict steps per cycle (may adapt).
     effective_predict_steps: usize,
+
+    /// Loss history tracker (optional).
+    loss_history: Option<LossHistory>,
 }
 
 impl DeterministicPhaseTrainer {
@@ -267,6 +294,12 @@ impl DeterministicPhaseTrainer {
 
         let predictor = DeterministicPredictor::new(param_shapes, prediction_config, device)?;
 
+        let loss_history = if config.track_loss_history {
+            Some(LossHistory::with_config(config.loss_history_config.clone()))
+        } else {
+            None
+        };
+
         Ok(Self {
             effective_full_steps: config.full_steps,
             effective_predict_steps: config.predict_steps,
@@ -284,6 +317,7 @@ impl DeterministicPhaseTrainer {
             recent_losses: VecDeque::with_capacity(100),
             last_loss: 0.0,
             warmup_complete: false,
+            loss_history,
         })
     }
 
@@ -468,6 +502,11 @@ impl DeterministicPhaseTrainer {
         self.recent_losses.push_back(loss);
         self.last_loss = loss;
 
+        // Record to loss history if enabled
+        if let Some(history) = &mut self.loss_history {
+            history.record(loss, self.current_phase);
+        }
+
         // Update phase-specific counters
         match self.current_phase {
             DeterministicPhase::Warmup => self.warmup_steps_taken += 1,
@@ -536,7 +575,26 @@ impl DeterministicPhaseTrainer {
         self.warmup_complete = false;
         self.effective_full_steps = self.config.full_steps;
         self.effective_predict_steps = self.config.predict_steps;
+        if let Some(history) = &mut self.loss_history {
+            history.clear();
+        }
         Ok(())
+    }
+
+    /// Get access to the loss history tracker.
+    ///
+    /// Returns `None` if loss tracking is disabled.
+    #[must_use]
+    pub fn loss_history(&self) -> Option<&LossHistory> {
+        self.loss_history.as_ref()
+    }
+
+    /// Get mutable access to the loss history tracker.
+    ///
+    /// Returns `None` if loss tracking is disabled.
+    #[must_use]
+    pub fn loss_history_mut(&mut self) -> Option<&mut LossHistory> {
+        self.loss_history.as_mut()
     }
 }
 

@@ -97,7 +97,8 @@ pub use vsa::VSAGradientCompressor;
 // Re-export deterministic training types (recommended for production)
 pub use phase::{
     DeterministicPhase, DeterministicPhaseConfig, DeterministicPhaseTrainer,
-    DeterministicStepInfo, DeterministicTrainerStats,
+    DeterministicStepInfo, DeterministicTrainerStats, LossAnomaly, LossHistory,
+    LossHistoryConfig, LossMeasurement, LossStatistics,
 };
 pub use prediction::{DeterministicPredictionConfig, DeterministicPredictor, PredictorStatistics};
 
