@@ -30,6 +30,17 @@ use candle_core::{Device, Tensor};
 use crate::error::{OptimError, Result};
 use crate::prediction::{DeterministicPredictionConfig, DeterministicPredictor};
 
+fn warn_cpu_fallback(device: &Device) {
+    static WARN_ONCE: std::sync::Once = std::sync::Once::new();
+    if matches!(device, Device::Cpu) {
+        WARN_ONCE.call_once(|| {
+            eprintln!(
+                "vsa-optim-rs: CPU device in use. CUDA is the intended default; use Device::cuda_if_available(0) when possible."
+            );
+        });
+    }
+}
+
 /// Configuration for deterministic phase training.
 #[derive(Debug, Clone)]
 pub struct DeterministicPhaseConfig {
@@ -245,6 +256,7 @@ impl DeterministicPhaseTrainer {
         config: DeterministicPhaseConfig,
         device: &Device,
     ) -> Result<Self> {
+        warn_cpu_fallback(device);
         let prediction_config = DeterministicPredictionConfig {
             warmup_steps: config.warmup_steps,
             history_window: config.history_window,

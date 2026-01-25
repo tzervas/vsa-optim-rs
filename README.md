@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/vsa-optim-rs.svg)](https://crates.io/crates/vsa-optim-rs)
 [![Documentation](https://docs.rs/vsa-optim-rs/badge.svg)](https://docs.rs/vsa-optim-rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
-[![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
+[![Rust Version](https://img.shields.io/badge/rust-1.92%2B-orange.svg)](https://www.rust-lang.org)
 
 **Deterministic training optimization using Vector Symbolic Architecture (VSA),
 ternary quantization, and closed-form gradient prediction.**
@@ -254,7 +254,7 @@ TernaryConfig::builder()
 
 ## Requirements
 
-- **Rust**: 1.70+ (2021 edition)
+- **Rust**: 1.92+ (2021 edition)
 - **Dependencies**: candle-core 0.9+, trit-vsa 0.1+
 
 ## Integration with axolotl-rs

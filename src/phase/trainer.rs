@@ -13,6 +13,17 @@ use crate::prediction::GradientPredictor;
 use crate::ternary::TernaryGradientAccumulator;
 use crate::vsa::VSAGradientCompressor;
 
+fn warn_cpu_fallback(device: &Device) {
+    static WARN_ONCE: std::sync::Once = std::sync::Once::new();
+    if matches!(device, Device::Cpu) {
+        WARN_ONCE.call_once(|| {
+            eprintln!(
+                "vsa-optim-rs: CPU device in use. CUDA is the intended default; use Device::cuda_if_available(0) when possible."
+            );
+        });
+    }
+}
+
 /// Training phase types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TrainingPhase {
@@ -135,6 +146,7 @@ impl PhaseTrainer {
         config: PhaseConfig,
         device: &Device,
     ) -> Result<Self> {
+        warn_cpu_fallback(device);
         let predictor = GradientPredictor::new(
             param_shapes,
             config.prediction_config.clone(),

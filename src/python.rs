@@ -42,6 +42,38 @@ use crate::prediction::GradientPredictor as RustGradientPredictor;
 use crate::ternary::TernaryGradientAccumulator as RustTernaryAccumulator;
 use crate::vsa::VSAGradientCompressor as RustVSACompressor;
 
+fn resolve_device(use_cuda: Option<bool>) -> PyResult<Device> {
+    let force_cpu = std::env::var("VSA_OPTIM_FORCE_CPU")
+        .ok()
+        .is_some_and(|v| v == "1" || v.eq_ignore_ascii_case("true"));
+    if force_cpu {
+        eprintln!("vsa-optim-rs: CPU mode forced via VSA_OPTIM_FORCE_CPU=1. GPU is the intended default.");
+        return Ok(Device::Cpu);
+    }
+
+    if use_cuda == Some(false) {
+        eprintln!("vsa-optim-rs: CPU mode selected; GPU is the intended default.");
+        return Ok(Device::Cpu);
+    }
+
+    let cuda_device = std::env::var("VSA_OPTIM_CUDA_DEVICE")
+        .ok()
+        .and_then(|v| v.parse::<usize>().ok())
+        .unwrap_or(0);
+
+    match Device::cuda_if_available(cuda_device) {
+        Ok(device @ Device::Cuda(_)) => Ok(device),
+        Ok(_) => {
+            eprintln!("vsa-optim-rs: CUDA not available; falling back to CPU. This is a compatibility path only.");
+            Ok(Device::Cpu)
+        }
+        Err(err) => {
+            eprintln!("vsa-optim-rs: CUDA init failed ({err}); falling back to CPU. This is a compatibility path only.");
+            Ok(Device::Cpu)
+        }
+    }
+}
+
 // ============================================================================
 // Configuration Wrappers
 // ============================================================================
@@ -439,20 +471,15 @@ impl PyPhaseTrainer {
     /// Args:
     ///     shapes: List of (name, shape) tuples for model parameters
     ///     config: Phase training configuration
-    ///     use_cuda: Whether to use CUDA device (default: False)
+    ///     use_cuda: Optional bool, None to auto-detect CUDA (default: None)
     #[new]
-    #[pyo3(signature = (shapes, config=None, use_cuda=false))]
+    #[pyo3(signature = (shapes, config=None, use_cuda=None))]
     fn new(
         shapes: Vec<(String, Vec<usize>)>,
         config: Option<PyPhaseConfig>,
-        use_cuda: bool,
+        use_cuda: Option<bool>,
     ) -> PyResult<Self> {
-        let device = if use_cuda {
-            Device::cuda_if_available(0)
-                .map_err(|e| PyValueError::new_err(format!("CUDA not available: {e}")))?
-        } else {
-            Device::Cpu
-        };
+        let device = resolve_device(use_cuda)?;
 
         let config = config.map(|c| c.inner).unwrap_or_default();
         let inner = RustPhaseTrainer::new(&shapes, config, &device)
@@ -631,20 +658,15 @@ impl PyTernaryAccumulator {
     /// Args:
     ///     shapes: List of (name, shape) tuples for model parameters.
     ///     config: Ternary configuration.
-    ///     use_cuda: Whether to use CUDA device.
+    ///     use_cuda: Optional bool, None to auto-detect CUDA (default: None)
     #[new]
-    #[pyo3(signature = (shapes, config=None, use_cuda=false))]
+    #[pyo3(signature = (shapes, config=None, use_cuda=None))]
     fn new(
         shapes: Vec<(String, Vec<usize>)>,
         config: Option<PyTernaryConfig>,
-        use_cuda: bool,
+        use_cuda: Option<bool>,
     ) -> PyResult<Self> {
-        let device = if use_cuda {
-            Device::cuda_if_available(0)
-                .map_err(|e| PyValueError::new_err(format!("CUDA not available: {e}")))?
-        } else {
-            Device::Cpu
-        };
+        let device = resolve_device(use_cuda)?;
 
         let config = config.map(|c| c.inner).unwrap_or_default();
         let inner = RustTernaryAccumulator::new(&shapes, config, &device)
@@ -719,20 +741,15 @@ impl PyGradientPredictor {
     /// Args:
     ///     shapes: List of (name, shape) tuples for model parameters.
     ///     config: Prediction configuration.
-    ///     use_cuda: Whether to use CUDA device.
+    ///     use_cuda: Optional bool, None to auto-detect CUDA (default: None)
     #[new]
-    #[pyo3(signature = (shapes, config=None, use_cuda=false))]
+    #[pyo3(signature = (shapes, config=None, use_cuda=None))]
     fn new(
         shapes: Vec<(String, Vec<usize>)>,
         config: Option<PyPredictionConfig>,
-        use_cuda: bool,
+        use_cuda: Option<bool>,
     ) -> PyResult<Self> {
-        let device = if use_cuda {
-            Device::cuda_if_available(0)
-                .map_err(|e| PyValueError::new_err(format!("CUDA not available: {e}")))?
-        } else {
-            Device::Cpu
-        };
+        let device = resolve_device(use_cuda)?;
 
         let config = config.map(|c| c.inner).unwrap_or_default();
         let inner = RustGradientPredictor::new(&shapes, config, &device)
