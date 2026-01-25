@@ -1,0 +1,51 @@
+[package]
+name = "vsa-optim-rs"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+license = "MIT"
+authors = ["Tyler Zervas <tz-dev@vectorweight.com>"]
+description = "Deterministic training optimization using VSA compression and closed-form gradient prediction"
+repository = "https://github.com/tzervas/vsa-optim-rs"
+homepage = "https://github.com/tzervas/vsa-optim-rs"
+documentation = "https://docs.rs/vsa-optim-rs"
+readme = "README.md"
+keywords = ["machine-learning", "training", "optimization", "vsa", "gradient"]
+categories = ["science", "mathematics", "algorithms"]
+
+[dependencies]
+# Sister crate dependencies
+trit-vsa = "0.1"
+
+# Tensor operations
+candle-core = { workspace = true }
+
+# Core utilities
+thiserror = { workspace = true }
+serde = { workspace = true }
+
+# Random number generation
+rand = "0.8"
+rand_chacha = "0.3"
+
+# Optional Python bindings
+pyo3 = { version = "0.22", optional = true, features = ["extension-module"] }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = "1.4"
+
+[features]
+default = []
+python = ["dep:pyo3"]
+
+[lib]
+name = "vsa_optim_rs"
+crate-type = ["lib", "cdylib"]
+
+[lints]
+workspace = true
+
+[[bench]]
+name = "optim_bench"
+harness = false
