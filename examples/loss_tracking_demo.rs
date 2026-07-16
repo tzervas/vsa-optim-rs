@@ -116,12 +116,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Print progress every 10 steps
         if (step + 1) % 10 == 0 {
-            println!(
-                "Step {}: Phase={}, Loss={:.4}",
-                step + 1,
-                info.phase,
-                loss
-            );
+            println!("Step {}: Phase={}, Loss={:.4}", step + 1, info.phase, loss);
         }
     }
 
@@ -202,7 +197,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(json) => {
             // In a real application, you would write this to a file
             println!("  JSON export successful ({} bytes)", json.len());
-            println!("  Sample (first 200 chars): {}", &json[..200.min(json.len())]);
+            println!(
+                "  Sample (first 200 chars): {}",
+                &json[..200.min(json.len())]
+            );
         }
         Err(e) => println!("  JSON export failed: {}", e),
     }
@@ -226,10 +224,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "  Backward passes:  {:.1}% of steps",
         backward_ratio * 100.0
     );
-    println!(
-        "  Predicted steps:  {:.1}% of steps",
-        predict_ratio * 100.0
-    );
+    println!("  Predicted steps:  {:.1}% of steps", predict_ratio * 100.0);
     println!("  Overall speedup:  {:.2}x", trainer_stats.speedup);
 
     Ok(())

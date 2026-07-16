@@ -25,6 +25,25 @@ hardware through mathematically principled gradient compression and prediction.
 vsa-optim-rs = "0.1"
 ```
 
+### Build from source
+
+This is a **standalone** crate (not a Cargo workspace). Requires Rust **1.92+**.
+
+```bash
+git clone https://github.com/tzervas/vsa-optim-rs.git
+cd vsa-optim-rs
+cargo check
+cargo test
+# Optional local gate (fmt + check + test):
+./scripts/check.sh
+```
+
+Optional Python bindings (feature `python`):
+
+```bash
+cargo check --features python
+```
+
 ## Quick Start
 
 ### Deterministic Phase Training (Recommended)

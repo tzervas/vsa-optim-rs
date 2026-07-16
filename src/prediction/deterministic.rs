@@ -225,7 +225,11 @@ impl DeterministicPredictor {
 
         // Check residual threshold
         for residual in self.residuals.values() {
-            if let Ok(max_abs) = residual.abs().and_then(|t| t.max(0)).and_then(|t| t.to_scalar::<f32>()) {
+            if let Ok(max_abs) = residual
+                .abs()
+                .and_then(|t| t.max(0))
+                .and_then(|t| t.to_scalar::<f32>())
+            {
                 if max_abs > self.config.residual_threshold {
                     return true;
                 }
@@ -369,8 +373,7 @@ impl DeterministicPredictor {
                     .and_then(|t| t.mean_all())
                     .and_then(|t| t.to_scalar::<f32>())
                 {
-                    self.stats.mean_abs_error =
-                        0.9 * self.stats.mean_abs_error + 0.1 * mean_err;
+                    self.stats.mean_abs_error = 0.9 * self.stats.mean_abs_error + 0.1 * mean_err;
                 }
             }
         }
@@ -388,9 +391,10 @@ impl DeterministicPredictor {
                 continue;
             }
 
-            let shape = self.shapes.get(name).ok_or_else(|| {
-                OptimError::Prediction(format!("Unknown parameter: {name}"))
-            })?;
+            let shape = self
+                .shapes
+                .get(name)
+                .ok_or_else(|| OptimError::Prediction(format!("Unknown parameter: {name}")))?;
 
             // Weighted least squares fitting
             // g(t) = baseline + velocity * t
@@ -453,12 +457,10 @@ impl DeterministicPredictor {
                 continue;
             }
 
-            let sum_wg = sum_wg.ok_or_else(|| {
-                OptimError::Prediction("Empty gradient history".to_string())
-            })?;
-            let sum_wtg = sum_wtg.ok_or_else(|| {
-                OptimError::Prediction("Empty gradient history".to_string())
-            })?;
+            let sum_wg = sum_wg
+                .ok_or_else(|| OptimError::Prediction("Empty gradient history".to_string()))?;
+            let sum_wtg = sum_wtg
+                .ok_or_else(|| OptimError::Prediction("Empty gradient history".to_string()))?;
 
             // Cramer's rule
             // baseline = (sum_wt2 * sum_wg - sum_wt * sum_wtg) / det
@@ -660,11 +662,7 @@ mod tests {
 
         // Predict next step - should be close to 1 + 0.1*5 = 1.5
         let predicted = predictor.predict_gradient().unwrap();
-        let pred_vals: Vec<f32> = predicted
-            .get("param")
-            .unwrap()
-            .to_vec1()
-            .unwrap();
+        let pred_vals: Vec<f32> = predicted.get("param").unwrap().to_vec1().unwrap();
 
         // All values should be close to 1.5
         for v in &pred_vals {

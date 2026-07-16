@@ -540,10 +540,9 @@ impl DeterministicPhaseTrainer {
     pub fn get_stats(&self) -> DeterministicTrainerStats {
         // Calculate speedup: total forward steps / backward steps
         let total_forward = self.total_step as f32;
-        let total_backward = (self.warmup_steps_taken
-            + self.full_steps_taken
-            + self.correct_steps_taken)
-            .max(1) as f32;
+        let total_backward =
+            (self.warmup_steps_taken + self.full_steps_taken + self.correct_steps_taken).max(1)
+                as f32;
         let speedup = total_forward / total_backward;
 
         DeterministicTrainerStats {

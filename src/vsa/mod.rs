@@ -76,7 +76,10 @@ pub fn hyperdimensional_bind(a: &Tensor, b: &Tensor) -> Result<Tensor> {
 /// Bind two packed ternary vectors.
 ///
 /// Uses trit-vsa's native bind operation for efficiency.
-pub fn hyperdimensional_bind_ternary(a: &PackedTritVec, b: &PackedTritVec) -> Result<PackedTritVec> {
+pub fn hyperdimensional_bind_ternary(
+    a: &PackedTritVec,
+    b: &PackedTritVec,
+) -> Result<PackedTritVec> {
     if a.len() != b.len() {
         return Err(OptimError::DimensionMismatch {
             expected: a.len(),
@@ -106,7 +109,9 @@ pub fn hyperdimensional_bind_ternary(a: &PackedTritVec, b: &PackedTritVec) -> Re
 /// Returns error if vectors is empty or vectors have different dimensions.
 pub fn hyperdimensional_bundle(vectors: &[Tensor], weights: Option<&[f32]>) -> Result<Tensor> {
     if vectors.is_empty() {
-        return Err(OptimError::EmptyInput("Cannot bundle empty list".to_string()));
+        return Err(OptimError::EmptyInput(
+            "Cannot bundle empty list".to_string(),
+        ));
     }
 
     let dim = vectors[0].dims();
@@ -120,9 +125,7 @@ pub fn hyperdimensional_bundle(vectors: &[Tensor], weights: Option<&[f32]>) -> R
     }
 
     let n = vectors.len();
-    let weights: Vec<f32> = weights
-        .map(|w| w.to_vec())
-        .unwrap_or_else(|| vec![1.0; n]);
+    let weights: Vec<f32> = weights.map(|w| w.to_vec()).unwrap_or_else(|| vec![1.0; n]);
 
     if weights.len() != n {
         return Err(OptimError::DimensionMismatch {
@@ -147,7 +150,9 @@ pub fn hyperdimensional_bundle(vectors: &[Tensor], weights: Option<&[f32]>) -> R
 /// Uses trit-vsa's native bundle operation (majority voting).
 pub fn hyperdimensional_bundle_ternary(vectors: &[&PackedTritVec]) -> Result<PackedTritVec> {
     if vectors.is_empty() {
-        return Err(OptimError::EmptyInput("Cannot bundle empty list".to_string()));
+        return Err(OptimError::EmptyInput(
+            "Cannot bundle empty list".to_string(),
+        ));
     }
     Ok(trit_vsa::vsa::bundle_many(vectors))
 }

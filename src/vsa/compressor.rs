@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use candle_core::{DType, Device, Tensor};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
-use trit_vsa::{PackedTritVec, Trit, vsa as trit_vsa_ops};
+use trit_vsa::{vsa as trit_vsa_ops, PackedTritVec, Trit};
 
 use crate::config::VSAConfig;
 use crate::error::{OptimError, Result};
@@ -76,9 +76,9 @@ impl VSAGradientCompressor {
     #[must_use]
     pub fn new(param_count: usize, config: VSAConfig) -> Self {
         // Use configured dimension or default based on compression ratio
-        let hypervector_dim = config.dimension.max(
-            (param_count as f32 * config.compression_ratio).max(256.0) as usize
-        );
+        let hypervector_dim = config
+            .dimension
+            .max((param_count as f32 * config.compression_ratio).max(256.0) as usize);
 
         Self {
             config,
@@ -142,7 +142,7 @@ impl VSAGradientCompressor {
                 // Sparse random projection for efficiency: ~68% zeros
                 let r: f32 = rng.gen();
                 if r < 0.16 {
-                    scale * 3.0_f32.sqrt()  // sqrt(3) to maintain variance
+                    scale * 3.0_f32.sqrt() // sqrt(3) to maintain variance
                 } else if r < 0.32 {
                     -scale * 3.0_f32.sqrt()
                 } else {
@@ -157,10 +157,7 @@ impl VSAGradientCompressor {
     }
 
     /// Project gradient to hypervector, returning ternary representation.
-    fn project_to_hypervector(
-        &mut self,
-        gradient: &Tensor,
-    ) -> Result<(PackedTritVec, f32)> {
+    fn project_to_hypervector(&mut self, gradient: &Tensor) -> Result<(PackedTritVec, f32)> {
         let device = gradient.device();
         let flat = gradient.flatten_all()?.to_dtype(DType::F32)?;
         let grad_size = flat.elem_count();
@@ -218,7 +215,9 @@ impl VSAGradientCompressor {
         gradients: &HashMap<String, Tensor>,
     ) -> Result<(PackedTritVec, HashMap<String, GradientMetadata>)> {
         if gradients.is_empty() {
-            return Err(OptimError::EmptyInput("No gradients to compress".to_string()));
+            return Err(OptimError::EmptyInput(
+                "No gradients to compress".to_string(),
+            ));
         }
 
         let mut metadata = HashMap::new();
@@ -294,14 +293,11 @@ impl VSAGradientCompressor {
                 .map(|i| unbound.get(i).value() as f32 * meta.scale)
                 .collect();
 
-            let unbound_tensor = Tensor::from_vec(
-                unbound_float,
-                self.hypervector_dim,
-                &device,
-            )?;
+            let unbound_tensor = Tensor::from_vec(unbound_float, self.hypervector_dim, &device)?;
 
             // Inverse project: (1, dim) @ (dim, grad_size) -> (1, grad_size)
-            let reconstructed = unbound_tensor.unsqueeze(0)?
+            let reconstructed = unbound_tensor
+                .unsqueeze(0)?
                 .matmul(&proj.t()?)?
                 .squeeze(0)?;
 
@@ -322,7 +318,8 @@ impl VSAGradientCompressor {
             compressed_dim: self.hypervector_dim,
             compression_ratio: self.hypervector_dim as f32 / self.param_count as f32,
             // Ternary uses 2 bits per element vs 32 bits for float
-            memory_saving: 1.0 - (self.hypervector_dim as f32 * 2.0 / 32.0) / self.param_count as f32,
+            memory_saving: 1.0
+                - (self.hypervector_dim as f32 * 2.0 / 32.0) / self.param_count as f32,
         }
     }
 
@@ -431,7 +428,7 @@ mod tests {
         let mut compressor = VSAGradientCompressor::new(
             param_count,
             VSAConfig::default()
-                .with_dimension(8192)  // Use larger dimension for better reconstruction
+                .with_dimension(8192) // Use larger dimension for better reconstruction
                 .with_compression_ratio(0.5),
         );
 
@@ -448,7 +445,11 @@ mod tests {
             let orig_data: Vec<f32> = orig_flat.to_vec1().unwrap();
             let recon_data: Vec<f32> = recon_flat.to_vec1().unwrap();
 
-            let dot: f32 = orig_data.iter().zip(recon_data.iter()).map(|(a, b)| a * b).sum();
+            let dot: f32 = orig_data
+                .iter()
+                .zip(recon_data.iter())
+                .map(|(a, b)| a * b)
+                .sum();
             let norm_orig: f32 = orig_data.iter().map(|x| x * x).sum::<f32>().sqrt();
             let norm_recon: f32 = recon_data.iter().map(|x| x * x).sum::<f32>().sqrt();
 
@@ -463,7 +464,7 @@ mod tests {
             // VSA reconstruction is approximate due to bundling interference
             if orig.elem_count() >= 1024 {
                 assert!(
-                    cosine > 0.1,  // Lower threshold due to bundling noise
+                    cosine > 0.1, // Lower threshold due to bundling noise
                     "Gradient direction not preserved for {name}: cosine = {cosine}"
                 );
             }
@@ -473,7 +474,8 @@ mod tests {
     #[test]
     fn test_bind_unbind_property() {
         // Test that bind/unbind correctly recovers the original
-        let mut compressor = VSAGradientCompressor::new(1000, VSAConfig::default().with_dimension(1024));
+        let mut compressor =
+            VSAGradientCompressor::new(1000, VSAConfig::default().with_dimension(1024));
 
         let key0 = compressor.get_binding_key(0);
         let key1 = compressor.get_binding_key(1);

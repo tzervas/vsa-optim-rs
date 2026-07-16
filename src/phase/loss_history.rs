@@ -229,7 +229,8 @@ impl LossHistory {
 
         let window_size = window.unwrap_or(self.measurements.len());
         let start = self.measurements.len().saturating_sub(window_size);
-        let values: Vec<f32> = self.measurements
+        let values: Vec<f32> = self
+            .measurements
             .iter()
             .skip(start)
             .map(|m| m.loss)
@@ -253,7 +254,8 @@ impl LossHistory {
             return None;
         }
 
-        let sum: f32 = self.measurements
+        let sum: f32 = self
+            .measurements
             .iter()
             .rev()
             .take(window)
@@ -300,7 +302,8 @@ impl LossHistory {
         }
 
         let half = window / 2;
-        let values: Vec<f32> = self.measurements
+        let values: Vec<f32> = self
+            .measurements
             .iter()
             .rev()
             .take(window)
@@ -355,14 +358,16 @@ impl LossHistory {
             let late_window = window;
 
             let early_start = self.measurements.len().saturating_sub(window * 2);
-            let early_values: Vec<f32> = self.measurements
+            let early_values: Vec<f32> = self
+                .measurements
                 .iter()
                 .skip(early_start)
                 .take(early_window)
                 .map(|m| m.loss)
                 .collect();
 
-            let late_values: Vec<f32> = self.measurements
+            let late_values: Vec<f32> = self
+                .measurements
                 .iter()
                 .rev()
                 .take(late_window)
@@ -400,7 +405,8 @@ impl LossHistory {
             return None;
         }
 
-        let values: Vec<f32> = self.measurements
+        let values: Vec<f32> = self
+            .measurements
             .iter()
             .rev()
             .take(window)
@@ -434,7 +440,8 @@ impl LossHistory {
         phases
             .iter()
             .filter_map(|&phase| {
-                let values: Vec<f32> = self.measurements_for_phase(phase)
+                let values: Vec<f32> = self
+                    .measurements_for_phase(phase)
                     .iter()
                     .map(|m| m.loss)
                     .collect();
@@ -543,9 +550,7 @@ impl<'de> Deserialize<'de> for DeterministicPhase {
             "FULL" => Ok(DeterministicPhase::Full),
             "PREDICT" => Ok(DeterministicPhase::Predict),
             "CORRECT" => Ok(DeterministicPhase::Correct),
-            _ => Err(serde::de::Error::custom(format!(
-                "Unknown phase: {s}"
-            ))),
+            _ => Err(serde::de::Error::custom(format!("Unknown phase: {s}"))),
         }
     }
 }
@@ -643,9 +648,9 @@ mod tests {
         let anomalies = history.detect_anomalies(20);
         assert!(!anomalies.is_empty());
 
-        let has_divergence = anomalies.iter().any(|a| {
-            matches!(a, LossAnomaly::Divergence { .. })
-        });
+        let has_divergence = anomalies
+            .iter()
+            .any(|a| matches!(a, LossAnomaly::Divergence { .. }));
         assert!(has_divergence);
     }
 

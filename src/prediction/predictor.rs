@@ -251,10 +251,7 @@ impl GradientPredictor {
                 let correction = actual.sub(predicted)?;
 
                 // Track prediction error
-                let error = correction
-                    .abs()?
-                    .mean_all()?
-                    .to_scalar::<f32>()?;
+                let error = correction.abs()?.mean_all()?.to_scalar::<f32>()?;
 
                 if self.prediction_errors.len() >= 100 {
                     self.prediction_errors.pop_front();
@@ -290,10 +287,7 @@ impl GradientPredictor {
     /// # Errors
     ///
     /// Returns error if tensor operations fail.
-    pub fn apply_correction(
-        &mut self,
-        gradients: &mut HashMap<String, Tensor>,
-    ) -> Result<()> {
+    pub fn apply_correction(&mut self, gradients: &mut HashMap<String, Tensor>) -> Result<()> {
         let weight = self.config.correction_weight;
 
         for (name, grad) in gradients.iter_mut() {

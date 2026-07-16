@@ -86,7 +86,11 @@ pub fn ternary_quantize_stochastic(x: &Tensor, threshold: Option<f32>) -> Result
             let rand_val: f32 = rng.gen();
 
             if rand_val < abs_norm {
-                if normalized > 0.0 { 1.0 } else { -1.0 }
+                if normalized > 0.0 {
+                    1.0
+                } else {
+                    -1.0
+                }
             } else {
                 0.0
             }
@@ -175,7 +179,11 @@ pub fn ternary_quantize_stochastic_packed(
         let rand_val: f32 = rng.gen();
 
         let trit = if rand_val < abs_norm {
-            if normalized > 0.0 { Trit::P } else { Trit::N }
+            if normalized > 0.0 {
+                Trit::P
+            } else {
+                Trit::N
+            }
         } else {
             Trit::Z
         };
@@ -246,7 +254,11 @@ mod tests {
     fn test_memory_savings() {
         let savings = calculate_memory_savings(1_000_000, 10);
         // Should save ~93.75% (1 - 2/32 ≈ 0.9375)
-        assert!(savings > 0.9, "Expected > 90% savings, got {:.2}%", savings * 100.0);
+        assert!(
+            savings > 0.9,
+            "Expected > 90% savings, got {:.2}%",
+            savings * 100.0
+        );
     }
 
     #[test]

@@ -192,7 +192,11 @@ impl TernaryGradientAccumulator {
     /// Fraction of memory saved (0 to 1).
     #[must_use]
     pub fn memory_savings(&self) -> f32 {
-        let param_count: usize = self.accumulators.values().map(|a| a.shape.iter().product::<usize>()).sum();
+        let param_count: usize = self
+            .accumulators
+            .values()
+            .map(|a| a.shape.iter().product::<usize>())
+            .sum();
         let num_tensors = self.accumulators.len();
         calculate_memory_savings(param_count, num_tensors)
     }
@@ -461,7 +465,11 @@ mod tests {
         let savings = accumulator.memory_savings();
 
         // Should save ~90%+ for reasonable sizes
-        assert!(savings > 0.9, "Expected >90% savings, got {:.2}%", savings * 100.0);
+        assert!(
+            savings > 0.9,
+            "Expected >90% savings, got {:.2}%",
+            savings * 100.0
+        );
     }
 
     #[test]
@@ -518,11 +526,13 @@ mod tests {
 
         // Test stochastic
         let config_stochastic = TernaryConfig::default().with_stochastic_rounding(true);
-        let mut acc_stochastic = TernaryGradientAccumulator::new(&shapes, config_stochastic, &device).unwrap();
+        let mut acc_stochastic =
+            TernaryGradientAccumulator::new(&shapes, config_stochastic, &device).unwrap();
 
         // Test deterministic
         let config_deterministic = TernaryConfig::default().with_stochastic_rounding(false);
-        let mut acc_deterministic = TernaryGradientAccumulator::new(&shapes, config_deterministic, &device).unwrap();
+        let mut acc_deterministic =
+            TernaryGradientAccumulator::new(&shapes, config_deterministic, &device).unwrap();
 
         let gradients = create_mock_gradients(&device);
 

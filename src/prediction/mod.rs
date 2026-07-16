@@ -27,5 +27,7 @@
 mod deterministic;
 mod predictor;
 
-pub use deterministic::{DeterministicPredictionConfig, DeterministicPredictor, PredictorStatistics};
+pub use deterministic::{
+    DeterministicPredictionConfig, DeterministicPredictor, PredictorStatistics,
+};
 pub use predictor::{GradientPredictor, PredictorStats};

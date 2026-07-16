@@ -18,12 +18,12 @@ categories = ["science", "mathematics", "algorithms"]
 trit-vsa = "0.1"
 
 # Tensor operations
-candle-core = { workspace = true }
+candle-core = { version = "0.9", default-features = false }
 
 # Core utilities
-thiserror = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 # Random number generation
 rand = "0.8"
@@ -33,7 +33,7 @@ rand_chacha = "0.3"
 pyo3 = { version = "0.22", optional = true, features = ["extension-module"] }
 
 [dev-dependencies]
-criterion = { workspace = true }
+criterion = { version = "0.5", default-features = false }
 proptest = "1.4"
 
 [features]
@@ -44,8 +44,12 @@ python = ["dep:pyo3"]
 name = "vsa_optim_rs"
 crate-type = ["lib", "cdylib"]
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+pedantic = "warn"
 
 [[bench]]
 name = "optim_bench"

@@ -147,19 +147,16 @@ impl PhaseTrainer {
         device: &Device,
     ) -> Result<Self> {
         warn_cpu_fallback(device);
-        let predictor = GradientPredictor::new(
-            param_shapes,
-            config.prediction_config.clone(),
-            device,
-        )?;
+        let predictor =
+            GradientPredictor::new(param_shapes, config.prediction_config.clone(), device)?;
 
-        let ternary_accum = TernaryGradientAccumulator::new(
-            param_shapes,
-            config.ternary_config.clone(),
-            device,
-        )?;
+        let ternary_accum =
+            TernaryGradientAccumulator::new(param_shapes, config.ternary_config.clone(), device)?;
 
-        let param_count: usize = param_shapes.iter().map(|(_, s)| s.iter().product::<usize>()).sum();
+        let param_count: usize = param_shapes
+            .iter()
+            .map(|(_, s)| s.iter().product::<usize>())
+            .sum();
         let vsa_compressor = VSAGradientCompressor::new(param_count, config.vsa_config.clone());
 
         let mut phase_losses = HashMap::new();
@@ -375,7 +372,8 @@ impl PhaseTrainer {
         self.total_step += 1;
 
         // Calculate speedup
-        let total_forward = (self.full_steps_taken + self.predict_steps_taken + self.correct_steps_taken) as f32;
+        let total_forward =
+            (self.full_steps_taken + self.predict_steps_taken + self.correct_steps_taken) as f32;
         let total_backward = (self.full_steps_taken + self.correct_steps_taken).max(1) as f32;
         self.speedup_ratio = total_forward / total_backward;
 
@@ -467,7 +465,10 @@ impl PhaseTrainer {
     /// Check if should compute full gradients.
     #[must_use]
     pub fn should_compute_full(&self) -> bool {
-        matches!(self.current_phase, TrainingPhase::Full | TrainingPhase::Correct)
+        matches!(
+            self.current_phase,
+            TrainingPhase::Full | TrainingPhase::Correct
+        )
     }
 }
 

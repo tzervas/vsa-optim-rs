@@ -1,0 +1,30 @@
+name: CI
+
+# Triggered on push/PR; also manual. Local parity: ./scripts/check.sh
+# Linux x64 jobs: self-hosted Podman fleet (same labels as tero-rs / memory-gate-rs).
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  check:
+    name: Local-parity checks
+    runs-on: [self-hosted, linux, x64, podman]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Local-parity checks
+        run: bash scripts/check.sh
