@@ -365,7 +365,15 @@ fn test_loss_history_phase_statistics() {
 
     // Check that each phase has valid statistics
     for (phase, stats) in &phase_summary {
-        assert!(stats.count > 0, "Phase {:?} should have measurements", phase);
-        assert!(stats.mean > 0.0, "Phase {:?} should have positive mean", phase);
+        assert!(
+            stats.count > 0,
+            "Phase {:?} should have measurements",
+            phase
+        );
+        assert!(
+            stats.mean > 0.0,
+            "Phase {:?} should have positive mean",
+            phase
+        );
     }
 }

@@ -31,8 +31,8 @@
 
 use std::collections::HashMap;
 
-use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
+use pyo3::prelude::*;
 
 use candle_core::{Device, Tensor};
 
@@ -47,7 +47,9 @@ fn resolve_device(use_cuda: Option<bool>) -> PyResult<Device> {
         .ok()
         .is_some_and(|v| v == "1" || v.eq_ignore_ascii_case("true"));
     if force_cpu {
-        eprintln!("vsa-optim-rs: CPU mode forced via VSA_OPTIM_FORCE_CPU=1. GPU is the intended default.");
+        eprintln!(
+            "vsa-optim-rs: CPU mode forced via VSA_OPTIM_FORCE_CPU=1. GPU is the intended default."
+        );
         return Ok(Device::Cpu);
     }
 
@@ -302,9 +304,7 @@ impl PyPhaseConfig {
                 full_steps,
                 predict_steps,
                 correct_every,
-                prediction_config: prediction_config
-                    .map(|c| c.inner)
-                    .unwrap_or_default(),
+                prediction_config: prediction_config.map(|c| c.inner).unwrap_or_default(),
                 ternary_config: ternary_config.map(|c| c.inner).unwrap_or_default(),
                 vsa_config: vsa_config.map(|c| c.inner).unwrap_or_default(),
                 gradient_accumulation,
@@ -805,7 +805,8 @@ impl PyGradientPredictor {
         let stats = self.inner.get_stats();
         format!(
             "GradientPredictor(history={}, ratio={:.1}%)",
-            stats.history_size, stats.prediction_ratio * 100.0
+            stats.history_size,
+            stats.prediction_ratio * 100.0
         )
     }
 }

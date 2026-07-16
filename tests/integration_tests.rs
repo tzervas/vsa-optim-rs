@@ -9,7 +9,9 @@ use std::collections::HashMap;
 use candle_core::{Device, Tensor};
 use vsa_optim_rs::{
     config::{PhaseConfig, PredictionConfig, TernaryConfig, VSAConfig},
-    phase::{DeterministicPhase, DeterministicPhaseConfig, DeterministicPhaseTrainer, PhaseTrainer},
+    phase::{
+        DeterministicPhase, DeterministicPhaseConfig, DeterministicPhaseTrainer, PhaseTrainer,
+    },
     prediction::GradientPredictor,
     ternary::TernaryGradientAccumulator,
     vsa::VSAGradientCompressor,
@@ -249,10 +251,8 @@ fn test_combined_vsa_and_ternary() {
     let total_params = param_count(&gradients);
 
     // First compress with VSA
-    let mut compressor = VSAGradientCompressor::new(
-        total_params,
-        VSAConfig::default().with_dimension(512),
-    );
+    let mut compressor =
+        VSAGradientCompressor::new(total_params, VSAConfig::default().with_dimension(512));
 
     let (bundled, metadata) = compressor.compress(&gradients).unwrap();
 
