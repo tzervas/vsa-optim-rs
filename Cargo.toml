@@ -15,7 +15,7 @@ categories = ["science", "mathematics", "algorithms"]
 
 [dependencies]
 # Sister crate dependencies
-trit-vsa = "0.1"
+trit-vsa = { version = "0.2.0", path = "../trit-vsa" }
 
 # Tensor operations
 candle-core = { version = "0.9", default-features = false }
