@@ -1,5 +1,10 @@
 # vsa-optim-rs
 
+<!-- FLEET-BADGES:BEGIN -->
+[![CI](https://github.com/tzervas/vsa-optim-rs/actions/workflows/fleet-ci.yml/badge.svg?branch=main)](https://github.com/tzervas/vsa-optim-rs/actions/workflows/fleet-ci.yml?query=branch%3Amain)
+[![Security](https://github.com/tzervas/vsa-optim-rs/actions/workflows/fleet-security.yml/badge.svg?branch=main)](https://github.com/tzervas/vsa-optim-rs/actions/workflows/fleet-security.yml?query=branch%3Amain)
+<!-- FLEET-BADGES:END -->
+
 [![Crates.io](https://img.shields.io/crates/v/vsa-optim-rs.svg)](https://crates.io/crates/vsa-optim-rs)
 [![Documentation](https://docs.rs/vsa-optim-rs/badge.svg)](https://docs.rs/vsa-optim-rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
