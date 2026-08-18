@@ -77,32 +77,27 @@ Memory-efficient gradient accumulation in `{-1, 0, +1}`:
 
 ## Build Commands
 
-Standalone crate (run from this repo root; no workspace `-p` needed):
-
 ```bash
 # Check compilation
-cargo check
+cargo check -p vsa-optim-rs
 
 # Run tests
-cargo test
-
-# Local gate (fmt + check + test)
-./scripts/check.sh
+cargo test -p vsa-optim-rs
 
 # Run specific test
-cargo test test_deterministic_prediction
+cargo test -p vsa-optim-rs test_deterministic_prediction
 
 # Integration tests
-cargo test --test integration_tests
+cargo test -p vsa-optim-rs --test integration_tests
 
 # Benchmarks
-cargo bench
+cargo bench -p vsa-optim-rs
 
 # Build with Python bindings
-cargo build --features python
+cargo build -p vsa-optim-rs --features python
 
 # Generate docs
-cargo doc --open
+cargo doc -p vsa-optim-rs --open
 ```
 
 ## Testing
@@ -158,8 +153,8 @@ pub struct VSAAccelerator {
 
 1. Update version in `Cargo.toml`
 2. Update `CHANGELOG.md`
-3. Run full test suite: `cargo test` (or `./scripts/check.sh`)
-4. Check documentation: `cargo doc`
+3. Run full test suite: `cargo test -p vsa-optim-rs`
+4. Check documentation: `cargo doc -p vsa-optim-rs`
 5. Verify examples compile
 6. Tag release: `git tag v0.1.0`
 7. Publish: `cargo publish -p vsa-optim-rs`

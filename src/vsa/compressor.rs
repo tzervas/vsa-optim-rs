@@ -12,7 +12,7 @@
 use std::collections::HashMap;
 
 use candle_core::{DType, Device, Tensor};
-use rand::SeedableRng;
+use rand_chacha::rand_core::{Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use trit_vsa::{vsa as trit_vsa_ops, PackedTritVec, Trit};
 
@@ -107,9 +107,8 @@ impl VSAGradientCompressor {
 
         let mut key = PackedTritVec::new(self.hypervector_dim);
         for i in 0..self.hypervector_dim {
-            use rand::Rng;
             // Generate random ternary: ~33% each of -1, 0, +1
-            let r: f32 = rng.gen();
+            let r: f32 = (rng.next_u32() as f64 / u32::MAX as f64) as f32;
             let trit = if r < 0.33 {
                 Trit::N
             } else if r < 0.66 {
@@ -138,9 +137,8 @@ impl VSAGradientCompressor {
 
         let data: Vec<f32> = (0..grad_size * self.hypervector_dim)
             .map(|_| {
-                use rand::Rng;
                 // Sparse random projection for efficiency: ~68% zeros
-                let r: f32 = rng.gen();
+                let r: f32 = (rng.next_u32() as f64 / u32::MAX as f64) as f32;
                 if r < 0.16 {
                     scale * 3.0_f32.sqrt() // sqrt(3) to maintain variance
                 } else if r < 0.32 {
