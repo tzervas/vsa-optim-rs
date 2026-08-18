@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped minimum Rust version to 1.92
+- Standalone `Cargo.toml`: `trit-vsa = "0.3"` is version-only (no path / workspace inherit)
+  so a lone clone resolves without sister checkouts
 
 ## [0.1.0] - 2026-01-24
 

@@ -73,7 +73,7 @@ pub fn ternary_quantize_stochastic(x: &Tensor, threshold: Option<f32>) -> Result
         return Ok((x.zeros_like()?, 0.0));
     }
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // Stochastic quantization
     let quantized: Vec<f32> = data
@@ -83,7 +83,7 @@ pub fn ternary_quantize_stochastic(x: &Tensor, threshold: Option<f32>) -> Result
             let abs_norm = normalized.abs();
 
             // P(+1) = max(0, normalized), P(-1) = max(0, -normalized), P(0) = 1 - |normalized|
-            let rand_val: f32 = rng.gen();
+            let rand_val: f32 = rng.random();
 
             if rand_val < abs_norm {
                 if normalized > 0.0 {
@@ -169,14 +169,14 @@ pub fn ternary_quantize_stochastic_packed(
         return Ok((PackedTritVec::new(data.len()), 0.0));
     }
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let mut packed = PackedTritVec::new(data.len());
 
     // Stochastic quantization
     for (i, &v) in data.iter().enumerate() {
         let normalized = v / scale;
         let abs_norm = normalized.abs();
-        let rand_val: f32 = rng.gen();
+        let rand_val: f32 = rng.random();
 
         let trit = if rand_val < abs_norm {
             if normalized > 0.0 {
